@@ -19,6 +19,7 @@
     TextInput,
     ScrollView,
     TouchableOpacity,
+    TouchableHighlight,
   } from 'react-native';
 
   // App Globals
@@ -64,129 +65,65 @@
       return {
         show_save_msg: false,
         form_fields: FormValidation.struct({
-          First_name: FormValidation.String,
-          Last_name: FormValidation.String,
           Email: valid_email,
           Password: valid_password,
-          Confirm_password: valid_password,
+ 
         }),
         empty_form_values: {
-          First_name: '',
-          Last_name: '',
           Email: '',
           Password: '',
-          Confirm_password: '',
         },
         form_values: {},
         options: {
           fields: {
-            First_name: { error: 'Please enter your first name' },
-            Last_name: { error: 'Please enter your last name' },
             Email: { error: 'Please enter a valid email' },
             Password: {
               error: 'Your new password must be more than 6 characters', 
               type: 'password',
-            },
-            Confirm_password: { 
-              error: 'Please repeat your new password',
-              type: 'password',
-            },
+            } 
           }
         },
       };
     },
+        //save our inputs into state
+        userEmailTextChanged: function(text){
+            this.setState({userEmail: text});
+          },
+          passwordTextChanged: function(text){
+            this.setState({ passwordText: text});
+          },
+ 
+        //send our data to the server
+     logInPost: function(URL,parameters){
+          
+          var email = this.state.userEmail;
+          var password = this.state.passwordText;
 
-    /**
-      * Executes after all modules have been loaded
-      */
-    componentDidMount: function() {
-      var self = this;
+          console.log(email);
+          console.log(password);
 
-      // Get setting from local DB to populate fields
-      AppDB.settings.get_all(function(result){
-        if(result.totalrows > 0) {
-          var firstIndex = AppUtil.firstIndexInObj(result.rows);
-          self.setState({form_values: result.rows[firstIndex].values});
-        }
-      });
-    },
-
-    /**
-      * Save Form Data to App
-      */
-    _saveData: function(callback) {
-      var values = this.state.form_values;
-
-      // Check if data exists so we know if to add or update
-      AppDB.settings.get_all(function(result){
-        if(result.totalrows == 0) {
-          // Add data to the local DB
-          AppDB.settings.add({values}, function(added_data){
-            return callback(added_data);
+          return fetch('https://api.teambasementsystems.com/tbsauth/', { 
+            method: "POST", 
+            headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: 'email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password),
+            })
+            .then(response => response.json())
+            .then((responseData) => {
+              console.log(responseData);
+              return responseData;
           });
-        } else {
-          // Update row
-          var firstIndex = AppUtil.firstIndexInObj(result.rows);
-          AppDB.settings.update_id(firstIndex, {values}, function(updated_data){
-            return callback(updated_data);
-          });
-        }
-      });
-    },
+        },
+     
 
-    /**
-      * Delete Data
-      */
-    _deleteData: function(callback) {
-      var self = this;
-
-      // Erase the DB
-      AppDB.settings.erase_db(function(removed_data){
-        self.setState({form_values: self.state.empty_form_values});
-        return callback();
-      });
-    },
-
-    /**
-      * Sign Up
-      */
-    _signUp: function() {
-      var self = this;
-
-      // Get new values and update
-      var value = self.refs.form.getValue();
-
-      // Check whether passwords match
-      if(value && value.Password != value.Confirm_password) {
-        self.setState({
-          options: FormValidation.update(self.state.options, {
-            fields: {
-              Confirm_password: {
-                hasError: {'$set': true},
-                error: {'$set': 'Passwords don\'t match'}
-              }
-            }
-          })
-        });
-        return false;
-      }
-
-      // Form is valid
-      if(value) {
-        self.setState({form_values: value}, function(){
-          self._saveData(function(result){
-            // Show save message
-            self.setState({show_save_msg: true});
-          });
-        });
-      }
-    },
 
     /**
       * RENDER
       */
     render: function() {
       var Form = FormValidation.form.Form;
+      var _this = this;
 
       return (
         <ScrollView automaticallyAdjustContentInsets={false} 
@@ -205,35 +142,43 @@
             : null}
 
             <Text style={[AppStyles.baseText, AppStyles.h3, AppStyles.centered]}>
-              {this.state.form_values.First_name == '' ? "Sign Up" : "Update Profile"}
+              {this.state.form_values.First_name == '' ? "Sign Up" : "Log In"}
             </Text>
 
             <Text style={[AppStyles.baseText, AppStyles.p, AppStyles.centered]}>
-              This page saves your input to the local DB. We also have form validation: required first and last name, valid email address + password validation (required, must be 6 characters or more + must match each other)
+              This page saves your input to the local DB.
             </Text>
             
             <View style={AppStyles.spacer_20} />
 
-            <Form
-              ref="form"
-              type={this.state.form_fields}
-              value={this.state.form_values}
-              options={this.state.options} />
+           <TextInput
+              style={styles.textInput}
+              value={_this.state.userEmail}
+              onChangeText={_this.userEmailTextChanged}
+              secureTextEntry={false}
+              onSubmitEditing={_this.onSubmitEditingUsername}
+               placeholder="Email"
+            >
+            </TextInput>
+            <TextInput
+              style={styles.textInput}
+              value={_this.state.passwordText}
+              onChangeText={_this.passwordTextChanged}
+              secureTextEntry={true}
+              onSubmitEditing={_this.onSubmitEditingPassword}
+              placeholder="password"
+            >
+            </TextInput>
+ 
           </View>
 
           <View style={[AppStyles.grid_row]}>
             <View style={[AppStyles.grid_twoThirds, AppStyles.paddingLeft]}>
               <View style={AppStyles.spacer_15} />
-              <TouchableOpacity onPress={()=>{this._deleteData()}}>
-                <Text style={[AppStyles.baseText, AppStyles.p, AppStyles.link]}>Clear My Info</Text>
-              </TouchableOpacity>
-            </View>
+              </View>
 
-            <View style={[AppStyles.grid_third, AppStyles.paddingRight]}>
-              <Button
-                text={"Save"}
-                onPress={this._signUp} />
-            </View>
+             <View style={[AppStyles.grid_third, AppStyles.paddingRight]}>
+             </View>
           </View>
 
           <View style={AppStyles.hr} />
@@ -241,12 +186,7 @@
           <View style={[AppStyles.paddingHorizontal]}>
             <Button
               text={'Sign In'}
-              onPress={()=>alert('Just for looks')} />
-
-            <Button
-              text={'Guest Checkout'}
-              style={'outlined'}
-              onPress={()=>alert('Just for looks')} />
+              onPress={this.logInPost} />
           </View>
 
         </ScrollView>
@@ -265,6 +205,16 @@
       justifyContent: 'center',
       alignItems: 'stretch',
     },
+    textInput:{
+    height:50,
+    fontSize:15,
+    color:'black',
+    borderColor: '#9E9E9E',
+    borderWidth: 1,
+    marginLeft:20,
+    marginTop:20,
+    marginRight:20,
+  },
   });
 
 /* ==============================
