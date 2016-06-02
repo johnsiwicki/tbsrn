@@ -29,6 +29,10 @@
   import ListViewExample from '../screens/listview.ios';
   import ListViewExample2 from '../screens/listview2.ios';
 
+  import Newsletter from '../screens/newsletters.ios';
+  import Snap from '../screens/snapit.ios';
+  import Training from '../screens/training.ios';
+
 /* ==============================
   Menu Component
   =============================== */
@@ -52,9 +56,9 @@ var Menu = React.createClass({
       ['Dashboard', Index],
       ['Login', FormExample],
       ['Leads', ListViewExample2],
-      ['Newsletter', ListViewExample],
-      ['Snap It', ListViewExample2],
-      ['Training Events', ListViewExample2],
+      ['Newsletter', Newsletter],
+      ['Snap It', Snap],
+      ['Training Events', Training],
     ];
 
     // Build the actual Menu Items
