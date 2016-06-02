@@ -17,12 +17,4 @@ Contains the following items all setup and ready to go:
 8. Pull to Refresh via https://facebook.github.io/react-native/docs/refreshcontrol.html
 9. An example directory/file structure I've found useful for scaling apps
 
-### Getting Started
-
-1. Clone this project
-2. Run `npm install` from root directory
-3. Open the /ios/StarterKit.xcodeproj file in Xcode
-
-### Any advice?
-
-Love to hear any feedback or tips to improve - submit an issue or PR.
+ 
