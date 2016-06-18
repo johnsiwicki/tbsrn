@@ -1,5 +1,5 @@
 /**
- * Tabbar
+ * Listing SCREEN
  *
  * React Native Starter App
  * https://github.com/mcnamee/react-native-starter-app
@@ -7,115 +7,159 @@
 'use strict';
 
 /* ==============================
-  Initialise Component
+  Initialise App
   =============================== */
   // React
   import React, { Component } from 'react';
   import {
     StyleSheet,
-    TabBarIOS,
+    View,
+    ListView,
+    RefreshControl,
   } from 'react-native';
 
   // App Globals
-  // import AppStyles from '../styles.ios';
+  import AppStyles from '../styles.ios';
   import AppConfig from '../config.ios';
+  import AppUtil from '../util.ios';
 
+  // App Components
+  import ListRow from '../components/list.row.ios';
+
+  // Pages / Screens
+  import Screen from './soon.ios';
   // Screens / Pages
-  import ComingSoon from './soon.ios';
-  import FirstLoad from './first.load.ios';
+  import Index from '../screens/tabbar.ios';
+  import ComingSoon from '../screens/soon.ios';
+  import FormExample from '../modules/example/screens/forms.ios';
+  import ListViewExample2 from '../screens/listview2.ios';
+
+  import Newsletter from '../screens/newsletters.ios';
+  import Snap from '../screens/snapit.ios';
+  import Training from '../screens/training.ios';
+
 
 /* ==============================
-  View
+  Listing
   =============================== */
-  class Tabbar extends Component {
-
-    /**
-      * Setup Default State Values
-      */
-    constructor(props) {
-      super(props);
-
-      this.state = {
-        selectedTab: 'favourites'
-      }
+  var defaultData = [
+    {
+      title: 'Leads',
+      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
+      image: 'http://lorempixel.com/g/1000/250/nature',
+      component:ListViewExample2,
+    },
+    {
+      title: 'Training',
+      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
+      image: 'http://lorempixel.com/g/1000/250/animals',
+      component:Training,
+    },
+    {
+      title: 'Newsletters',
+      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
+      image: 'http://lorempixel.com/g/1000/250/transport',
+      component:Newsletter,
+    },
+    {
+      title: 'Snap It',
+      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
+      image: 'http://lorempixel.com/g/1000/250/nightlife',
+      component:Snap,
     }
+  ];
+
+  var ListViewExample = React.createClass({
 
     /**
-      * On Mount
+      * Sets initial state (before JSON retrieved)
       */
-    componentWillMount() {
-      // Show Splash Screen (on first load)
-      if(this.props.showSplashScreen) {
-        this.props.navigator.push({
-          title: 'Sign Up',
-          component: FirstLoad,
-          index: 2,
-          navigator: this.props.navigator,
-          transition: 'FloatFromBottom',
-        });
-      }
-    }
+    getInitialState: function() {
+      return {
+        dataSource: new ListView.DataSource({
+          rowHasChanged: (row1, row2) => row1 !== row2,
+        }),
+        isRefreshing: false,
+      };
+    },
 
     /**
-      * RENDER
+      * Executes after all modules have been loaded
       */
-    render() {
+    componentDidMount: function() {
+      // Fetch Data
+      this._fetchData();
+    },
+
+    /**
+      * Executes after all modules have been loaded
+      */
+    _fetchData: function() {
+      var self = this;
+
+      self.setState({ isRefreshing: true });
+
+      self.setState({
+        dataSource: self.state.dataSource.cloneWithRows(defaultData),
+        isRefreshing: false,
+      });
+    },
+
+
+    /**
+      * Each Row Item
+      */
+    _renderRow: function(data) {
       return (
-        <TabBarIOS 
-          selectedTab={this.state.selectedTab}
-          tintColor={AppConfig.primaryColor}
-          translucent={true}>
-          <TabBarIOS.Item
-            selected={this.state.selectedTab === 'favourites'}
-            title="Favourites"
-            // icon={{uri:'featured'}}
-            systemIcon='favorites'
-            onPress={() => {
-              this.setState({
-                selectedTab: 'favourites',
-              });
-            }}>
-            <ComingSoon navigator={this.props.navigator} placeholder={"This could be whatever you'd like..."} />
-          </TabBarIOS.Item>
+        <ListRow title={data.title.toString()}
+          image={data.image}
+          onPress={()=>{
+            this.props.navigator.push({
+              title: data.title,
+              component: data.component,
+              index: 2,
+              navigator: this.props.navigator,
+            });
+          }} />
+      );
+    },
 
-          <TabBarIOS.Item
-            selected={this.state.selectedTab === 'contacts'}
-            title="Contacts"
-            systemIcon='contacts'
-            onPress={() => {
-              this.setState({
-                selectedTab: 'contacts',
-              });
-            }}>
-            <ComingSoon navigator={this.props.navigator} placeholder={"This could be a screen listing contacts..."} />
-          </TabBarIOS.Item>
-
-          <TabBarIOS.Item
-            selected={this.state.selectedTab === 'more'}
-            title="More"
-            // icon={{uri:'contacts'}}
-            // icon={require('image!settings')}
-            systemIcon='more'
-            onPress={() => {
-              this.setState({
-                selectedTab: 'more',
-              });
-            }}>
-            <ComingSoon navigator={this.props.navigator} placeholder={"This could be a settings screen..."} />
-          </TabBarIOS.Item>
-
-        </TabBarIOS>
-      )
+    /**
+      * Do Render
+      */
+    render: function() {
+      return (
+        <View style={[AppStyles.container]}>
+          <ListView
+            initialListSize={8}
+            automaticallyAdjustContentInsets={false}
+            dataSource={this.state.dataSource}
+            renderRow={this._renderRow}
+            contentContainerStyle={styles.container} 
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.isRefreshing}
+                onRefresh={this._fetchData}
+                tintColor={AppConfig.primaryColor} />
+            } />
+        </View>
+      );
     }
-  }
+  });
 
 /* ==============================
   Styles
   =============================== */
-  // var styles = StyleSheet.create({
-  // });
+  var styles = StyleSheet.create({
+    container: {
+      paddingBottom: AppConfig.tabBarHeight,
+    },
+  });
 
 /* ==============================
   Done!
   =============================== */
-  module.exports = Tabbar;
+  module.exports = ListViewExample;
+  module.exports.details = {
+    title: 'ListViewExample'
+  };

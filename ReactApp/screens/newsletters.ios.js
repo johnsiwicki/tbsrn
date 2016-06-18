@@ -15,6 +15,7 @@
     StyleSheet,
     View,
     ListView,
+    Alert,
     RefreshControl,
   } from 'react-native';
 
@@ -32,43 +33,6 @@
 /* ==============================
   Listing
   =============================== */
-  var defaultData = [
-    {
-      title: 'Lorem ipsum adipiscing',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/nature',
-    },
-    {
-      title: 'Guim petis',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/animals',
-    },
-    {
-      title: 'Filos be amik',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/transport',
-    },
-    {
-      title: 'Mi a adipiscing',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/nightlife',
-    },
-    {
-      title: 'Ching vivamus le',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/food',
-    },
-    {
-      title: 'Parturinent my proin',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/fashion',
-    },
-    {
-      title: 'Vestibulum in fames',
-      summary: 'A vivamus neque consectetur parturient mi nisl proin molestie vestibulum in fames condimentum cum a.',
-      image: 'http://lorempixel.com/g/1000/250/business',
-    },
-  ];
 
   var ListViewExample = React.createClass({
 
@@ -98,12 +62,24 @@
     _fetchData: function() {
       var self = this;
 
-      self.setState({ isRefreshing: true });
+      self.setState({ isRefreshing: false });
 
-      self.setState({
-        dataSource: self.state.dataSource.cloneWithRows(defaultData),
-        isRefreshing: false,
-      });
+        fetch("https://api.teambasementsystems.com/newsletters/", {method: "GET"})
+          .then((response) => response.json())
+          .then((responseData) => {
+          
+                 console.log(responseData.title);
+       
+          })
+          .done();
+
+
+
+      // self.setState({
+      //   dataSource: self.state.dataSource.cloneWithRows(responseData),
+      //   isRefreshing: false,
+      // });
+
     },
 
 

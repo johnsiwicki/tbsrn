@@ -15,9 +15,11 @@
     StyleSheet,
     View,
     Text,
-    Image,
+    Image, 
     TextInput,
     ScrollView,
+    Alert,
+    AsyncStorage,
     TouchableOpacity,
     TouchableHighlight,
   } from 'react-native';
@@ -37,6 +39,8 @@
 
   // Components
   import Button from '../../../components/button.ios';
+
+  import Index from '../../../screens/tabbar.ios';
 
 /* ==============================
   Form
@@ -92,6 +96,10 @@
           passwordTextChanged: function(text){
             this.setState({ passwordText: text});
           },
+
+          navpush: function() {
+            this.props.navigator.push({component: Index });
+           },
  
         //send our data to the server
      logInPost: function(URL,parameters){
@@ -101,6 +109,7 @@
 
           console.log(email);
           console.log(password);
+
 
           return fetch('https://api.teambasementsystems.com/tbsauth/', { 
             method: "POST", 
@@ -112,8 +121,15 @@
             .then(response => response.json())
             .then((responseData) => {
               console.log(responseData);
-              return responseData;  
-              AsyncStorage.setItem("myKey", "My value here");
+              // return responseData;  
+              AsyncStorage.setItem("token", JSON.stringify(responseData.accessToken));
+              Alert.alert(
+                  "You Have Logged In" + '' + responseData.userName,
+                  // [
+                  //   {text: 'Go To Dashboard ', onPress: () =>  this.navpush() },
+                  // ]
+
+              )
           });
         },
      
