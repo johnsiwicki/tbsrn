@@ -96,8 +96,8 @@
         //send our data to the server
      logInPost: function(URL,parameters){
           
-          var email = this.state.userEmail;
-          var password = this.state.passwordText;
+          var email = encodeURIComponent(this.state.userEmail);
+          var password = encodeURIComponent(this.state.passwordText);
 
           console.log(email);
           console.log(password);
@@ -107,12 +107,13 @@
             headers: {
                   'Content-Type': 'application/x-www-form-urlencoded'
             },
-            data: 'email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password),
+            body: 'email=' + email + '&password=' + password,
             })
             .then(response => response.json())
             .then((responseData) => {
               console.log(responseData);
-              return responseData;
+              return responseData;  
+              AsyncStorage.setItem("myKey", "My value here");
           });
         },
      
